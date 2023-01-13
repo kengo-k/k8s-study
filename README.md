@@ -65,11 +65,15 @@ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/miniku
 
 ## minikubeの基本的な使用方法を確認
 
+ステータスを確認
+
 ```
 $ minikube status
 🤷  Profile "minikube" not found. Run "minikube profile list" to view all profiles.
 👉  To start a cluster, run: "minikube start"
 ```
+
+まだ一度も起動してないためnot foundとなる。startしろと書いてあるのでその通りにする。
 
 ```
 $ minikube start
@@ -83,6 +87,8 @@ $ minikube start
 🏄  Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
 ```
 
+起動が成功したっぽいので再度ステータスを確認する。
+
 ```
 $ minikube status
 minikube
@@ -92,6 +98,8 @@ kubelet: Running
 apiserver: Running
 kubeconfig: Configured
 ```
+
+正常に起動できた模様。最後にアドオンの一覧を確認しておく。
 
 ```
 $ minikube addons list
@@ -106,3 +114,5 @@ $ minikube addons list
 | default-storageclass        | minikube | enabled ✅   | Kubernetes                     |
 ...以下略...
 ```
+
+ずらずらと一覧が表示されていればOK
