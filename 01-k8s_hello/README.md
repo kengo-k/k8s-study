@@ -30,7 +30,7 @@ $ kubectl get pod
 No resources found in default namespace.
 ```
 
-```yaml:01-hello.yaml
+```yaml:hello.yaml
 apiVersion: v1
 kind: Pod
 metadata:
@@ -45,7 +45,7 @@ spec:
 ```
 
 ```
-$ kubectl apply -f 01-hello.yaml
+$ kubectl apply -f hello.yaml
 pod/test created
 ```
 
@@ -56,7 +56,7 @@ test   0/1     CrashLoopBackOff   1 (16s ago)   45s
 ```
 
 ```
-$ kubectl get -f 01-hello.yaml
+$ kubectl get -f hello.yaml
 NAME   READY   STATUS             RESTARTS      AGE
 test   0/1     CrashLoopBackOff   2 (41s ago)   97s
 ```
@@ -71,7 +71,7 @@ service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   21h
 ```
 
 ```
-$ kubectl delete -f 01-hello.yaml
+$ kubectl delete -f hello.yaml
 pod "test" deleted
 ```
 
