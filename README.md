@@ -116,3 +116,21 @@ $ minikube addons list
 ```
 
 ずらずらと一覧が表示されていればOK
+
+```
+$ kubectl get service -n=kube-system
+NAME       TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
+kube-dns   ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   36h
+```
+
+```
+$ kubectl get po -n=kube-system
+NAME                               READY   STATUS    RESTARTS        AGE
+coredns-565d847f94-7m7p2           1/1     Running   1 (9m31s ago)   36h
+etcd-minikube                      1/1     Running   1 (9m31s ago)   36h
+kube-apiserver-minikube            1/1     Running   1 (9m31s ago)   36h
+kube-controller-manager-minikube   1/1     Running   1 (24m ago)     36h
+kube-proxy-77bcw                   1/1     Running   1 (24m ago)     36h
+kube-scheduler-minikube            1/1     Running   1 (9m31s ago)   36h
+storage-provisioner                1/1     Running   3 (8m38s ago)   36h
+```
