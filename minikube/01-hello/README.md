@@ -62,7 +62,7 @@ spec:
 `kubectl apply -f <マニフェストファイル名>`で実行する
 
 ```
-$ kubectl apply -f hello.yaml
+$ kubectl apply -f pod.yaml
 pod/test created
 ```
 
