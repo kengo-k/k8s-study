@@ -3,7 +3,7 @@
 下記のコマンドを実行しminikubeをインストールする。
 
 ```
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
 ```
 
 インストール後、ファイルに実行権限を付与しPATHの通ったディレクトリに配置すること
@@ -61,3 +61,9 @@ $ minikube addons list
 ```
 
 ずらずらと一覧が表示されていればOK
+
+## minikube環境をすべて削除してクリーンな状態に戻す
+
+```
+minikube delete --all
+```
