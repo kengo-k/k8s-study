@@ -70,14 +70,7 @@ config-sample-config   2      75s
 kube-root-ca.crt       1      4d
 ```
 
-もしくは省略名`cm`でも可能。
-
-```
-$ kubectl get cm
-NAME                   DATA   AGE
-config-sample-config   2      2m1s
-kube-root-ca.crt       1      4d
-```
+※省略名`cm`でも可能。
 
 環境変数が設定されていること＆設定ファイルがマウントされていることを確認する。
 
@@ -89,4 +82,26 @@ value3
 / # cat /home/nginx/config1.conf
 key1: value1
 key2: value2
+```
+
+また下記のように`kubectl get`を使用してyaml形式でConfigMapの内容を出力することが可能。
+
+```
+$ kubectl get cm config-sample-config -o yaml
+apiVersion: v1
+data:
+  config1.conf: |
+    key1: value1
+    key2: value2
+  key3: value3
+kind: ConfigMap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"config1.conf":"key1: value1\nkey2: value2\n","key3":"value3"},"kind":"ConfigMap","metadata":{"annotations":{},"name":"config-sample-config","namespace":"default"}}
+  creationTimestamp: "2023-01-16T14:37:07Z"
+  name: config-sample-config
+  namespace: default
+  resourceVersion: "468"
+  uid: ee7452f2-b752-43c4-9e63-9b84a3270b77
 ```
