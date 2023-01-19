@@ -1,33 +1,47 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: persistent-sample-volume
+  name: task-pv-volume
+  labels:
+    type: local
 spec:
-  # 任意の名前を指定する
-  storageClassName: slow
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
   accessModes:
     - ReadWriteOnce
-  capacity:
-    storage: 1Gi
-  # PVC削除時にPVをどのように扱うかを定義する
-  # Retain: PVを残す
-  # Delete: PVを削除する
-  persistentVolumeReclaimPolicy: Retain
-  # host上に保存する場合のPathを指定する。その他にもNFSなどが指定できる
   hostPath:
     path: "/data/storage"
-    type: Directory
 
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: persistent-sample-volume-claim
+  name: task-pv-claim
 spec:
-  # PersistentVolumeで定義した名前を指定する
-  storageClassName: slow
+  storageClassName: manual
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 3Gi
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: task-pv-pod
+spec:
+  volumes:
+    - name: task-pv-storage
+      persistentVolumeClaim:
+        claimName: task-pv-claim
+  containers:
+    - name: task-pv-container
+      image: nginx
+      ports:
+        - containerPort: 80
+          name: "http-server"
+      volumeMounts:
+        - mountPath: "/usr/share/nginx/html"
+          name: task-pv-storage
