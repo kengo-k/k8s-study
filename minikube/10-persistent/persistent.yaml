@@ -11,6 +11,8 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
+    # マウントしたいデータを格納しているホスト側のディレクトリパスを指定する。
+    # minikubeを使用している場合はminikube内(※minikube sshする)に所定のディレクトリを作成する必要がある
     path: "/data/storage"
 
 ---
