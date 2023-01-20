@@ -1,49 +1,60 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: task-pv-volume
-  labels:
-    type: local
+  name: persistent-sample-volume
 spec:
-  storageClassName: manual
-  capacity:
-    storage: 10Gi
+  # 任意の名前を指定する
+  storageClassName: slow
   accessModes:
     - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  # PVC削除時にPVをどのように扱うかを定義する
+  # Retain: PVを残す
+  # Delete: PVを削除する
+  persistentVolumeReclaimPolicy: Retain
+  # host上に保存する場合のPathを指定する。その他にもNFSなどが指定できる
   hostPath:
-    # マウントしたいデータを格納しているホスト側のディレクトリパスを指定する。
-    # minikubeを使用している場合はminikube内(※minikube sshする)に所定のディレクトリを作成する必要がある
+    # Podのマウントするホスト側のパスを指定する。
+    # minikubeを使用している場合はminikube(minikube sshする)内のパスとなることに注意
     path: "/data/storage"
+
+    # 講座の動画にてtype: Directoryを指定するという説明があったが、これを指定するとPodのSTATUSがContainerCreatingから
+    # 先へ進まない現象が発生した。kubectl describe podにてPODの状態を確認したところ、下記のエラーメッセージが出力されていた。
+    #
+    # MountVolume.SetUp failed for volume "persistent-sample-volume" : hostPath type check failed: /data/storage is not a directory
+    #
+    # Webページで解決策を調査したところ同様の問題が発生しているページを発見。
+    # 解決法としてこの設定をコメントアウトすることで解決するとのことだったので実際に試してみたところ確かに問題が解決することを確認できた。
+    #type: Directory
 
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: task-pv-claim
+  name: persistent-sample-volume-claim
 spec:
-  storageClassName: manual
+  # PersistentVolumeで定義した名前を指定する
+  storageClassName: slow
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 3Gi
+      storage: 1Gi
 
 ---
 apiVersion: v1
 kind: Pod
 metadata:
-  name: task-pv-pod
+  name: persistent-sample-pod
 spec:
   volumes:
-    - name: task-pv-storage
+    - name: persistent-sample-pod-volume
       persistentVolumeClaim:
-        claimName: task-pv-claim
+        claimName: persistent-sample-volume-claim
   containers:
-    - name: task-pv-container
-      image: nginx
-      ports:
-        - containerPort: 80
-          name: "http-server"
+    - name: nginx
+      image: nginx:1.17.3-alpine
       volumeMounts:
         - mountPath: "/usr/share/nginx/html"
-          name: task-pv-storage
+          name: persistent-sample-pod-volume
