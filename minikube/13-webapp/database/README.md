@@ -31,3 +31,17 @@ admin   0.000GB
 config  0.000GB
 local   0.000GB
 ```
+
+```
+$ kubectl apply -f weblog-db-storage.yaml
+persistentvolume/storage-volume created
+persistentvolumeclaim/storage-claim created
+```
+```
+$ kubectl get pvc,pv
+NAME                                  STATUS   VOLUME           CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+persistentvolumeclaim/storage-claim   Bound    storage-volume   1Gi        RWX            slow           22s
+
+NAME                              CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                   STORAGECLASS   REASON   AGE
+persistentvolume/storage-volume   1Gi        RWX            Retain           Bound    default/storage-claim   slow                    22ss
+```
