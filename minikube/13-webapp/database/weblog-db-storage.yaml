@@ -52,4 +52,4 @@ spec:
           name: storage
       command:
         - "mongod"
-        - "--binnd_ip_all"
+        - "--bind_ip_all"
