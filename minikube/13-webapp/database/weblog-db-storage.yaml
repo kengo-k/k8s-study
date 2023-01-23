@@ -29,3 +29,27 @@ spec:
   resources:
     requests:
       storage: 1Gi
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mongodb
+  labels:
+    app: web
+    type: database
+spec:
+  volumes:
+    - name: storage
+      persistentVolumeClaim:
+        claimName: storage-claim
+  containers:
+    - name: mongodb
+      image: weblog-db:v1.0.0
+      imagePullPolicy: Never
+      volumeMounts:
+        - mountPath: "/data/db"
+          name: storage
+      command:
+        - "mongod"
+        - "--binnd_ip_all"
