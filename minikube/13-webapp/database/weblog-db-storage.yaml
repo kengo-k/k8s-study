@@ -1,51 +1,58 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: storage-volume-1
+  name: storage-volume-0
+  namespace: default
   labels:
-    app: web
+    app: weblog
     type: storage
 spec:
   storageClassName: slow
   capacity:
     storage: 1Gi
   accessModes:
-    - ReadWriteMany
+  - ReadWriteMany
   hostPath:
-    path: "/data/pv0001"
-
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: storage-volume-2
-  labels:
-    app: web
-    type: storage
-spec:
-  storageClassName: slow
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteMany
-  hostPath:
-    path: "/data/pv0002"
+    path: "/data/pv0000"
+    type: Directory
 
 ---
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: storage-volume-3
+  name: storage-volume-1
+  namespace: default
   labels:
-    app: web
+    app: weblog
     type: storage
 spec:
   storageClassName: slow
   capacity:
     storage: 1Gi
   accessModes:
-    - ReadWriteMany
+  - ReadWriteMany
   hostPath:
-    path: "/data/pv0003"
+    path: "/data/pv0001"
+    type: Directory
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-volume-2
+  namespace: default
+  labels:
+    app: weblog
+    type: storage
+spec:
+  storageClassName: slow
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteMany
+  hostPath:
+    path: "/data/pv0002"
+    type: Directory
 
 ---
 apiVersion: v1
@@ -55,80 +62,82 @@ metadata:
   namespace: default
   labels:
     app: weblog
-    env: dev
+    type: database
 type: Opaque
 data:
   root_username: YWRtaW4=
   root_password: UGFzc3cwcmQ=
-  keyfile: dk5uMG9iOW5hM09oWGo0dTRhU0psdDRQM1k4L3pRTW1xV0VrYm5tQnRpRVBrbkd6Mzd4UWQ5MEE1Zmh5ZzBNUDFra1FuL1NmeU1jaE5xanNwZzI0RXdHVzBQQmdBRGNFcVVaaU5xK2FIVjdkdUVQZFNQOVZ3b1NPSEJRb0MrL085NG1VZU5QMExjeDViNEdTL2VKUTFWaEhQYlFHSlE2RTl5cVJIRFBZVk5NRFpHV215ZnFyNlZaV0hqamNGRUlWeHZVK0dJakhjTVVZbGRaN0RCVFVFZWhra1FydDJDbFRVSTZTeG1qd253RmhyMklheEdiUHVsNmRJSmMyL2JFb1A2MGFvSDBlbDdhOWlUejN3R3JvZ3VmWE9uVUs1d3l6VXp5YUx3bC9adldPMkttaUFWTnhTb2FIOXVwY3hYZTF5cXhZZUk5VE9iSHZWakxRY3lzTUFvb2t2Nm1vbHZTN0pFbU1qdWdsdVBHczQzWDI3aVdtMXY1N0ZXUGV0R08xUFlMdXF0YWQ4aDdJZDNBVldXVUthYlJoNjByVUdWTFcrZlJ3RUlIN2hMdGQ5L3RPdE5JMkJSNk40WDNYNnB1K0d1ZVRnaUtSZ0F1emhid2FkY1lnN21oei9GRzkxaGdHTnp1SzlpZWZlWG0zK2hPTHJIMTVjOFlrRHNXVTBmOUt2TVV5andiaDNKNFZKU3JYbXpra0VLbUFPOVVFUUYwMm10MXVEc2ZlSDRGRUdnaDBEempKY3RZclVHVFZKZzF5SXB4dTJMTVV5T2RBUGNla1hITTREdVZHTW5Gek9qVC9saVRPUFkvOTRoMWVlVzk3cWd1TUJBR2plKzdaZjZxbHhOcHZMbFpYM1pwSUtGSE9mVVJVMWZwQWVVc29DOHA3QkN1ZS93M3ZQNWRzTldNT3hyQjhKYk05aEtIWTdsVWU5UGZkL05qT1hLNy9Sa3lsaFhkTzFDU014Z2dVSXY0ZmdvU0RSNDhVbGZuVzRaUzBISHVtWG8wODE2aFZNRFVydjM3OUtkNEdRdGJHWjRPaktGK3o5WEl5aHZmeThXSzJieUNhRExtWXEybUZFS1VVNEI1TnhMbVhJbFZ3UlpreTg5OHpGaTdXdmIwcWh0TUhCd3FLcHBDVkJ0ZWM0V3h0TzQ3Z29wMDFMem1VUS9hQ2c4SThKR293TzFubWZMMkFIVFBlNmRYbzY0NFJCMkE3MmNYMXdHQ3NjSGY2ak9LV0w2bjVpcDhZMTNKVEo2WERwa0RxZitLU05XTDJ3NWFZWUR4MnJFM00wcnZkTmVXVmdzcXcyN2h5aFZ6ZlVOUWFDSG9lU3dsa3pKbTlNTEJ2Z2NlOENNbjJvaWZpZ0N0VAo=
+  keyfile: REZDeXROTzBtd2F3eUJzMjVFT3dwdHZDMVRpY1B6STM5S2tvampoZkU3SGVSL1Z2cnllTndxZE92T3dpWjlqUC9wSVdJZVlVWWlrdFpYZlhoT09seU1CRXdVQ0dyK3VtYm1FZXVkdWROeTRoUUNzVmUwWU9TbFgwN1hxYS8vbyttejRaOHBFY2hOMHdVYWhxcEhENWllRnlvTU5JVmFFY0ZQRjQzKzN2Wm92dzdNNHhhWSt4aGhuVzVldGdtL2MyZzlHYUdsSjRhWFBYSmJIUVR5bHNjbml2QnJtV2lJWStKQVBjK29GR0pMNUkzT0NpU1IxZDY2Z0c5OXlzb2Y3NlJ0eDBNdllnV2RYOXJTZTE2b2RhSTNJV3RtaEkyQ0xiV3BTOTk0blljV1RDYnRvcjNmTUMxY3M4bk5SV3kxdW4rSmJiUG9vTXFpUk9ieFJuY0hhcDJYK3BPS3RqWVBnK1lLWDFIdGYrWHlhSDdEckZkWk1uc1ZiQXRBZ1Y2Q2Y2N0laeW02NXA4TGpqRmtoWlRibjVaTWdqUWlud2Vya0IrUUM1aG1hUVFoQXU2ejV0ZStrUHJzUWc0UFEvSkNSTDd2d2VaRXpkZHdsQ284TllHVUpYYVNHMExnMms3d0R4OW9ITFR1QS9UZWxpdDJWcmZnUmJVNlk2ZjZGRU9jempLbkhLZ0hUMDlSSmE1NndkaWhnSHJleVdiVkNDN0JmZEZKMnpSajFmRzVZRWdwa0EzcGdNc3V2VURpNkFpNnROVmUzTzNqQXFDbVhnaHBGYnJ5aTlYWWd0RHNRa3BHUFJVWnlMdk5CajVrOHFCb2lZa2lIUFd2eUlieUI5U1gwcGN5UDEwUjh6UjBUQjhwWFVaYjNYaDFwNFZETVR0ZzV1OFd3ZjU2cElyV2UzS1lqMjBQMndXeVEzZ2xEbzVHTUp4VWRvdWJUeE91bjIrVjBKNk9jMGRLbG13ZXFFakFiYWtKaURkeXZ0eTJPZ2duYmdSU05ZWkluTktWUjluYm5QVUUva0NTTWJOZUU1aFZWRkMweng2RktIa2R4aVpGRXY4YlAvTFI0aFk0OU9FWmE5dnVQUkJuMkxxZmx1Y083d201T25EOG1OM1BZOExscE42U1dDVVRHSjJxZndtMzZ2alJLcEh4bkZINkljeURWd21iUHVsQ01FbmZuTDVyS0ovNGJaR2lFMVNRb2JRR1lEL0dicTFVRldvazBGTWZURlYxd2V0UWZWdjMyU0lTSjZQVUpNMmlUaEJKV0RQTlZUbUtmMjhEbHEyTmFMRk1kMXVnS3hBV1AyZk45WU9ndzZadWlpUkIvNlViSU03TXMyRldmeXRHcDJvWWN5OTRYUAo=
 
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: mongo
+  namespace: default
   labels:
-    app: web
+    app: weblog
     type: database
 spec:
   selector:
     matchLabels:
-      app: web
+      app: weblog
       type: database
   serviceName: db-svc
   replicas: 3
   template:
     metadata:
       name: mongodb
+      namespace: default
       labels:
-        app: web
+        app: weblog
         type: database
     spec:
       terminationGracePeriodSeconds: 10
-      volumes:
-        - name: secret
-          secret:
-            secretName: mongo-secret
-            items:
-              - key: keyfile
-                path: keyfile
-                mode: 0700
       containers:
-        - name: mongodb
-          image: weblog-db:v1.0.0
-          imagePullPolicy: Never
-          env:
-            - name: "MONGO_INITDB_ROOT_USERNAME"
-              valueFrom:
-                secretKeyRef:
-                  name: mongo-secret
-                  key: root_username
-            - name: "MONGO_INITDB_ROOT_PASSWORD"
-              valueFrom:
-                secretKeyRef:
-                  name: mongo-secret
-                  key: root_password
-            - name: "MONGO_INITDB_DATABASE"
-              value: "admin"
-          volumeMounts:
-            - mountPath: "/data/db"
-              name: storage
-            - mountPath: /home/mongodb
-              name: secret
-          args:
-            - "mongod"
-            - "--auth"
-            - "clusterAuthMode=keyFile"
-            - "--keyFile=/home/mongodb/keyfile"
-            - "--replSet=rs0"
-            - "--bind_ip_all"
+      - name: mongodb
+        image: weblog-db:v1.0.0
+        imagePullPolicy: Never
+        args:
+        - "mongod"
+        - "--auth"
+        - "--clusterAuthMode=keyFile"
+        - "--keyFile=/home/mongodb/keyfile"
+        - "--replSet=rs0"
+        - "--bind_ip_all"
+        env:
+        - name: "MONGO_INITDB_ROOT_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: root_username
+        - name: "MONGO_INITDB_ROOT_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: root_password
+        - name: "MONGO_INITDB_DATABASE"
+          value: "admin"
+        volumeMounts:
+        - mountPath: /data/db
+          name: storage
+        - mountPath: /home/mongodb
+          name: secret
+      volumes:
+      - name: secret
+        secret:
+          secretName: mongo-secret
+          items:
+          - key: keyfile
+            path: keyfile
+            mode: 0700
   volumeClaimTemplates:
-    - metadata:
-        name: storage
-      spec:
-        storageClassName: slow
-        accessModes:
-          - ReadWriteMany
-        resources:
-          requests:
-            storage: 1Gi
+  - metadata:
+      name: storage
+    spec:
+      storageClassName: slow
+      accessModes:
+      - ReadWriteMany
+      resources:
+        requests:
+          storage: 1Gi
