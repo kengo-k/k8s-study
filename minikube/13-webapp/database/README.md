@@ -1,23 +1,114 @@
-```
-$ docker build -t weblog-db:v1.0.0 .
-```
+# データベース用PodのStatefulSetを作成する
+
+## Podに使用するイメージを作成する
+
+PodのDockerイメージを作成するために下記の内容でDockerfileを作成する
+
+```Dockerfile
+FROM alpine:3.9
+
+COPY docker-entrypoint.sh /usr/local/bin
+
+RUN \
+  adduser -g mongodb -DH -u 1000 mongodb; \
+  apk --no-cache add mongodb=4.0.5-r0; \
+  chmod +x /usr/local/bin/docker-entrypoint.sh; \
+  mkdir -p /data/db; \
+  chown -R mongodb:mongodb /data/db;
+
+VOLUME /data/db
+EXPOSE 27017
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD [ "mongod" ]
 
 ```
-$ docker run -d  weblog-db:v1.0.0
+
+コンテナ起動時に実行する`docker-entrypoint.sh`を作成する。
+
+```sh
+#! /bin/sh
+INIT_FLAG_FILE=/data/db/init-completed
+INIT_LOG_FILE=/data/db/init-mongod.log
+
+start_mongod_as_daemon() {
+echo
+echo "> start mongod ..."
+echo
+mongod \
+  --fork \
+  --logpath ${INIT_LOG_FILE} \
+  --quiet \
+  --bind_ip 127.0.0.1 \
+  --smallfiles;
+}
+
+create_user() {
+echo
+echo "> create user ..."
+echo
+if [ ! "$MONGO_INITDB_ROOT_USERNAME" ] || [ ! "$MONGO_INITDB_ROOT_PASSWORD" ]; then
+  return
+fi
+mongo "${MONGO_INITDB_DATABASE}" <<-EOS
+  db.createUser({
+    user: "${MONGO_INITDB_ROOT_USERNAME}",
+    pwd: "${MONGO_INITDB_ROOT_PASSWORD}",
+    roles: [{ role: "root", db: "${MONGO_INITDB_DATABASE:-admin}"}]
+  })
+EOS
+}
+
+create_initialize_flag() {
+echo
+echo "> create initialize flag file ..."
+echo
+cat <<-EOF > "${INIT_FLAG_FILE}"
+[$(date +%Y-%m-%dT%H:%M:%S.%3N)] Initialize scripts if finigshed.
+EOF
+}
+
+stop_mongod() {
+echo
+echo "> stop mongod ..."
+echo
+mongod --shutdown
+}
+
+if [ ! -e ${INIT_FLAG_FILE} ]; then
+  echo
+  echo "--- Initialize MongoDB ---"
+  echo
+  start_mongod_as_daemon
+  create_user
+  create_initialize_flag
+  stop_mongod
+fi
+
+exec "$@"
+```
+
+イメージを作成する
+```
+$ docker build -t webapp-db:v1.0.0 .
+```
+
+Dockerコンテナを起動する
+```
+$ docker run -d  webapp-db:v1.0.0
 59b024a2f66684e64acf78d49a8ccc3d92a13eaeb213b98ac6a757b17f7f3e96
 ```
 
+Dockerコンテナが起動しているか確認する
 ```
 $ docker ps
 CONTAINER ID   IMAGE              COMMAND                  CREATED        STATUS        PORTS       NAMES
-36689f9598ee   weblog-db:v1.0.0   "docker-entrypoint.s…"   23 hours ago   Up 23 hours   27017/tcp   beautiful_kapitsa
+36689f9598ee   webapp-db:v1.0.0   "docker-entrypoint.s…"   23 hours ago   Up 23 hours   27017/tcp   beautiful_kapitsa
 ```
 
+Dockerコンテナの中に入りデータベースが起動していることを確認する
 ```
 $ docker exec -it beautiful_kapitsa sh
-```
-
-```
 / # mongo
 MongoDB shell version v4.0.5
 connecting to: mongodb://127.0.0.1:27017/?gssapiServiceName=mongodb
@@ -32,19 +123,92 @@ config  0.000GB
 local   0.000GB
 ```
 
+## データベース用のPodを作成する
+
+下記の内容でマニフェストファイルを作成する。データベース用のPodとPodにマウントするストレージを定義する。
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-volume
+  labels:
+    app: web
+    type: storage
+spec:
+  storageClassName: slow
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/data/storage"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: storage-claim
+  labels:
+    app: web
+    type: storage
+spec:
+  storageClassName: slow
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mongodb
+  labels:
+    app: web
+    type: database
+spec:
+  volumes:
+    - name: storage
+      persistentVolumeClaim:
+        claimName: storage-claim
+  containers:
+    - name: mongodb
+      image: webapp-db:v1.0.0
+      imagePullPolicy: Never
+      volumeMounts:
+        - mountPath: "/data/db"
+          name: storage
+      command:
+        - "mongod"
+        - "--bind_ip_all"
 ```
-$ kubectl apply -f weblog-db-storage.yaml
+
+マニフェストファイルを適用する
+
+```
+$ kubectl apply -f webapp-db-pod.yaml
 persistentvolume/storage-volume created
 persistentvolumeclaim/storage-claim created
+pod/mongodb created
 ```
+
+リソースが作成されたかどうかを確認する
+
 ```
-$ kubectl get pvc,pv
-NAME                                  STATUS   VOLUME           CAPACITY   ACCESS MODES   STORAGECLASS   AGE
-persistentvolumeclaim/storage-claim   Bound    storage-volume   1Gi        RWX            slow           22s
+$ kubectl get po,pv,pvc
+NAME          READY   STATUS    RESTARTS   AGE
+pod/mongodb   1/1     Running   0          63s
 
 NAME                              CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                   STORAGECLASS   REASON   AGE
-persistentvolume/storage-volume   1Gi        RWX            Retain           Bound    default/storage-claim   slow                    22ss
+persistentvolume/storage-volume   1Gi        RWX            Retain           Bound    default/storage-claim   slow                    63s
+
+NAME                                  STATUS   VOLUME           CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+persistentvolumeclaim/storage-claim   Bound    storage-volume   1Gi        RWX            slow           63s
 ```
+
+## TODO 次はここから
 
 ```
 $ openssl rand -base64 1024 | tr -d '\r\n' | cut -c 1-1024 > keyfile
@@ -110,4 +274,12 @@ switched to db admin
 admin   0.000GB
 config  0.000GB
 local   0.000GB
+```
+
+```
+$ kubectl apply -f weblog-db-storage.yaml
+persistentvolume/storage-volume-2 created
+persistentvolume/storage-volume-3 created
+secret/mongo-secret created
+statefulset.apps/mongo created
 ```
