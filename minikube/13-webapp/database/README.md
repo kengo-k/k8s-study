@@ -388,10 +388,182 @@ local   0.000GB
 
 ## TODO StatefulSet化
 
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-volume-0
+  namespace: default
+  labels:
+    app: weblog
+    type: storage
+spec:
+  storageClassName: slow
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteMany
+  hostPath:
+    path: "/data/pv0000"
+    type: Directory
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-volume-1
+  namespace: default
+  labels:
+    app: weblog
+    type: storage
+spec:
+  storageClassName: slow
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteMany
+  hostPath:
+    path: "/data/pv0001"
+    type: Directory
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: storage-volume-2
+  namespace: default
+  labels:
+    app: weblog
+    type: storage
+spec:
+  storageClassName: slow
+  capacity:
+    storage: 1Gi
+  accessModes:
+  - ReadWriteMany
+  hostPath:
+    path: "/data/pv0002"
+    type: Directory
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mongo-secret
+  namespace: default
+  labels:
+    app: weblog
+    type: database
+type: Opaque
+data:
+  root_username: YWRtaW4=
+  root_password: UGFzc3cwcmQ=
+  keyfile: REZDeX...長いので省略...
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+  namespace: default
+  labels:
+    app: weblog
+    type: database
+spec:
+  selector:
+    matchLabels:
+      app: weblog
+      type: database
+  serviceName: db-svc
+  replicas: 3
+  template:
+    metadata:
+      name: mongodb
+      namespace: default
+      labels:
+        app: weblog
+        type: database
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: mongodb
+        image: webapp-db:v1.0.0
+        imagePullPolicy: Never
+        args:
+        - "mongod"
+        - "--auth"
+        - "--clusterAuthMode=keyFile"
+        - "--keyFile=/home/mongodb/keyfile"
+        - "--replSet=rs0"
+        - "--bind_ip_all"
+        env:
+        - name: "MONGO_INITDB_ROOT_USERNAME"
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: root_username
+        - name: "MONGO_INITDB_ROOT_PASSWORD"
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret
+              key: root_password
+        - name: "MONGO_INITDB_DATABASE"
+          value: "admin"
+        volumeMounts:
+        - mountPath: /data/db
+          name: storage
+        - mountPath: /home/mongodb
+          name: secret
+      volumes:
+      - name: secret
+        secret:
+          secretName: mongo-secret
+          items:
+          - key: keyfile
+            path: keyfile
+            mode: 0700
+  volumeClaimTemplates:
+  - metadata:
+      name: storage
+    spec:
+      storageClassName: slow
+      accessModes:
+      - ReadWriteMany
+      resources:
+        requests:
+          storage: 1Gi
 ```
-$ kubectl apply -f weblog-db-storage.yaml
+
+```
+$ kubectl apply -f webapp-db-statefulset.yaml
+persistentvolume/storage-volume-0 created
+persistentvolume/storage-volume-1 created
 persistentvolume/storage-volume-2 created
-persistentvolume/storage-volume-3 created
 secret/mongo-secret created
 statefulset.apps/mongo created
+```
+
+```
+$ kubectl get po,pv,pvc,sts,secret
+NAME          READY   STATUS    RESTARTS   AGE
+pod/mongo-0   1/1     Running   0          15s
+pod/mongo-1   1/1     Running   0          11s
+pod/mongo-2   1/1     Running   0          8s
+
+NAME                                CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                     STORAGECLASS   REASON   AGE
+persistentvolume/storage-volume-0   1Gi        RWX            Retain           Bound    default/storage-mongo-0   slow                    15s
+persistentvolume/storage-volume-1   1Gi        RWX            Retain           Bound    default/storage-mongo-1   slow                    15s
+persistentvolume/storage-volume-2   1Gi        RWX            Retain           Bound    default/storage-mongo-2   slow                    15s
+
+NAME                                    STATUS   VOLUME             CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+persistentvolumeclaim/storage-mongo-0   Bound    storage-volume-0   1Gi        RWX            slow           15s
+persistentvolumeclaim/storage-mongo-1   Bound    storage-volume-1   1Gi        RWX            slow           11s
+persistentvolumeclaim/storage-mongo-2   Bound    storage-volume-2   1Gi        RWX            slow           8s
+
+NAME                     READY   AGE
+statefulset.apps/mongo   3/3     15s
+
+NAME                  TYPE     DATA   AGE
+secret/mongo-secret   Opaque   3      15s
 ```

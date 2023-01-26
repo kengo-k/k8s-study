@@ -96,7 +96,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
       - name: mongodb
-        image: weblog-db:v1.0.0
+        image: webapp-db:v1.0.0
         imagePullPolicy: Never
         args:
         - "mongod"
