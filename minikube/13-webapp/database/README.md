@@ -567,3 +567,63 @@ statefulset.apps/mongo   3/3     15s
 NAME                  TYPE     DATA   AGE
 secret/mongo-secret   Opaque   3      15s
 ```
+
+# databaseのサービス化
+
+作成したPodに外部からアクセスできるようにするために既存のマニフェストファイルにサービスの定義を追加する。
+
+※差分のみ
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-svc
+  labels:
+    app: weblog
+    type: database
+spec:
+  ports:
+    - port: 27017
+      targetPort: 27017
+  clusterIP: None
+  selector:
+    app: weblog
+    type: database
+```
+
+マニフェストファイルを適用する。
+
+```
+$ kubectl apply -f webapp-db-service.yaml
+persistentvolume/storage-volume-0 created
+persistentvolume/storage-volume-1 created
+persistentvolume/storage-volume-2 created
+secret/mongo-secret created
+service/db-svc created
+statefulset.apps/mongo created
+```
+
+続いてmongodbに入って初期化処理を行う。
+
+```
+$ kubectl exec -it mongo-0 -- sh
+/ # mongo
+MongoDB shell version v4.0.5
+...以下省略...
+> use admin
+switched to db admin
+> db.auth("admin", "Passw0rd")
+1
+> rs.initiate({
+... _id: "rs0",
+... members: [
+... {_id: 0, host: "mongo-0.db-svc:27017" },
+... {_id: 1, host: "mongo-1.db-svc:27017" },
+... {_id: 2, host: "mongo-2.db-svc:27017" }
+... ]})
+{ "ok" : 1 }
+rs0:SECONDARY> show dbs
+admin   0.000GB
+config  0.000GB
+local   0.000GB
+```
