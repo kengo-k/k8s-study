@@ -77,3 +77,24 @@ export DOCKER_HOST="tcp://192.168.49.2:2376"
 export DOCKER_CERT_PATH="/home/kengo/.minikube/certs"
 export MINIKUBE_ACTIVE_DOCKERD="minikube"
 ```
+
+```
+$ sudo ./minikube start --vm-driver=none
+GUEST_MISSING_CONNTRACK が原因で終了します: 申し訳ありませんが、Kubernetes 1.25.3 は root アカウントのパス中にインストールされた conntrack が必要です
+```
+
+```
+$ sudo apt install conntrack
+```
+
+```
+🐳  NOT_FOUND_CRI_DOCKERD が原因で終了します:
+
+💡  提案:
+
+    Kubernetes v1.24+ の none ドライバーと docker container-runtime は cri-dockerd を要求します。
+
+    これらの手順を参照して cri-dockerd をインストールしてください:
+
+    https://github.com/Mirantis/cri-dockerd#build-and-install
+```
