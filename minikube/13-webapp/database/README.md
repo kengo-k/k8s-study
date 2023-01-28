@@ -627,3 +627,114 @@ admin   0.000GB
 config  0.000GB
 local   0.000GB
 ```
+
+## mongodbの初期データを投入する
+
+`resources`配下にある初期化用スクリプトを最初に作成したdebug用Podに転送する。まずはdebug用Podが起動しているかを確認する。
+
+```
+$ kubectl get po
+NAME      READY   STATUS    RESTARTS   AGE
+debug     1/1     Running   0          15m
+mongo-0   1/1     Running   0          23h
+mongo-1   1/1     Running   0          23h
+mongo-2   1/1     Running   0          23h
+```
+
+debug用Podが確認できたので`kubectl cp`でファイルを転送する。
+
+```
+$ kubectl cp resources debug:/root/init-db
+```
+
+正常にコピーできたかどうかdebug用Podに入って確認する。
+
+```
+$ kubectl exec -it debug -- sh
+sh-4.2# cd /root/
+sh-4.2# ls
+anaconda-ks.cfg  init-db
+sh-4.2# cd init-db/
+sh-4.2# ls
+adduser.js  drop.js  init.sh  insert.js
+```
+
+コピーが正常に行われていることが確認できたのでファイルをmongodbに適用していく。適用する対象はプライマリDBのみとなる。とりあえず3つあるうちの先頭からアクセスしてみる。
+
+```
+sh-4.2# mongo mongo-0.db-svc
+MongoDB shell version v4.0.5
+...省略...
+rs0:PRIMARY>
+```
+
+mongo-0がPRIMARYだった模様。今回は偶然一回でPRIMARYを引き当てたが事前に確認するためには下記のコマンドを実行する。
+
+```
+rs0:PRIMARY> use admin
+switched to db admin
+rs0:PRIMARY> db.auth("admin", "Passw0rd")
+1
+rs0:PRIMARY> rs.status()
+...中略...
+                        "_id" : 0,
+                        "name" : "mongo-0.db-svc:27017",
+                        "stateStr" : "PRIMARY",
+...中略...
+```
+
+上記のように`_id`と`stateStr`から確認することができる。
+
+続いて初期化スクリプトを実行していく。`init.sh`の中に接続先のDBが指定されているので先ほど確認したPRIMARYと一致していることを確認してから下記コマンドを実行する。
+
+```
+sh-4.2# sh init.sh
+MongoDB shell version v4.0.5
+connecting to: mongodb://mongo-0.db-svc:27017/weblog?authSource=admin&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("a6217f8e-6ebd-4231-9b3f-f30696ffec6b") }
+MongoDB server version: 4.0.5
+Successfully added user: {
+        "user" : "user",
+        "roles" : [
+                {
+                        "role" : "readWrite",
+                        "db" : "weblog"
+                }
+        ]
+}
+MongoDB shell version v4.0.5
+connecting to: mongodb://mongo-0.db-svc:27017/weblog?authSource=admin&gssapiServiceName=mongodb
+Implicit session: session { "id" : UUID("c5893fab-fbf3-41c7-946e-6af6bd57b346") }
+MongoDB server version: 4.0.5
+```
+
+`weblog`というデータベースが作成されたようなので確認してみる。
+
+```
+sh-4.2# mongo mongo-0.db-svc
+rs0:PRIMARY> use admin
+rs0:PRIMARY> db.auth("admin", "Passw0rd")
+1
+rs0:PRIMARY> show dbs
+admin   0.000GB
+config  0.000GB
+local   0.001GB
+weblog  0.000GB
+
+rs0:PRIMARY> use weblog
+switched to db weblog
+rs0:PRIMARY> show collections
+posts
+privileges
+users
+
+rs0:PRIMARY> db.posts.find().map(p => p["_id"])
+[
+        ObjectId("63d527141e3f0fee27788bb6"),
+        ObjectId("63d527141e3f0fee27788bb7"),
+        ObjectId("63d527141e3f0fee27788bb8")
+]
+rs0:PRIMARY>
+```
+
+実際にデータが投入されているところまで確認できた。
