@@ -241,4 +241,27 @@ $ kubectl get po
 No resources found in default namespace.
 ```
 
-一般ユーザで動作できた(はず)。
+一般ユーザで動作できているように見える。実際に簡単なPodを動作させてみる。`01-hello`で作成したhello-worldのPodを使ってみる。
+
+```
+$ kubectl apply -f pod.yaml
+pod/test created
+```
+
+Podが作成された模様。ステータスもチェックしてみる。
+
+```
+$ kubectl get po
+NAME                 READY   STATUS    RESTARTS   AGE
+test                 0/1     Pending   0          7s
+```
+
+Pendingのまま起動しない。原因はまだ把握できていないがとりあえず
+
+```
+$ kubectl get node
+NAME                STATUS     ROLES           AGE   VERSION
+ubuntu-on-macmini   NotReady   control-plane   23m   v1.25.3
+```
+
+どうやらcontrol-plane(つまりマスターノード)がNotReadyになっている模様。まだ正しく動作できていない
