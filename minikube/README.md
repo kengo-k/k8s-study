@@ -214,4 +214,31 @@ sudo ./kubectl get po
 No resources found in default namespace.
 ```
 
-いつもの見慣れた表示ができたので動作している模様。毎回sudoが必要になるのであれば面倒なのでこのまま使うかどうか考える必要がありそう。
+いつもの見慣れた表示ができたので動作している模様。毎回sudoが必要になるのであれば面倒なのでこのまま使うかどうか考える必要がありそう。面倒くさいので上記の出力に記載されている再配置を試してみる。
+
+```
+# 念のため既存のディレクトリをパックアップしておく
+$ mv .kube .kube.org
+$ mv .minikube .minikube.org
+$ sudo rm -rf .minikube .kube
+$ sudo mv /root/.kube /root/.minikube $HOME
+$ sudo chown -R $USER $HOME/.kube $HOME/.minikube
+```
+
+一般ユーザでkubectlできるか試す。
+```
+$ kubectl get po
+Error in configuration:
+* unable to read client-cert /root/.minikube/profiles/minikube/client.crt for minikube due to open /root/.minikube/profiles/minikube/client.crt: permission denied
+* unable to read client-key /root/.minikube/profiles/minikube/client.key for minikube due to open /root/.minikube/profiles/minikube/client.key: permission denied
+* unable to read certificate-authority /root/.minikube/ca.crt for minikube due to open /root/.minikube/ca.crt: permission denied
+```
+
+いまだに/root配下のファイルを見ている模様。ためしに設定関連のファイルがないか探したところ`.kube/config`ファイルに/root以下のファイルを参照する箇所が残っていたので上記でmvして再配置した自ユーザのデイレクトリに書き換えてから再度実行する。
+
+```
+$ kubectl get po
+No resources found in default namespace.
+```
+
+一般ユーザで動作できた(はず)。
