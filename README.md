@@ -70,3 +70,27 @@ kube-proxy-77bcw                   1/1     Running   1 (24m ago)     36h
 kube-scheduler-minikube            1/1     Running   1 (9m31s ago)   36h
 storage-provisioner                1/1     Running   3 (8m38s ago)   36h
 ```
+
+```
+$ asdf plugin add kubectl
+```
+
+```
+$ asdf list all kubectl
+...中略...
+1.26.0
+...中略...
+```
+
+ひとまず1.26.0をインストールすることにする。
+
+```
+$ asdf install kubectl 1.26.0
+Downloading kubectl from https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl
+```
+
+globalに使えるように設定する
+
+```
+$ asdf global kubectl 1.26.0
+```
