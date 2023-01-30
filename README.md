@@ -111,3 +111,34 @@ minikube
 $ kubectx kind-kind
 Switched to context "kind-kind".
 ```
+
+# コンテキストの切り替えについて
+
+複数のクラスターが存在する場合(例えばminikubeも併用している場合)は使用するコンテキストを切り替えることで操作するクラスターを変更できる。コンテキストの一覧は`kubectl config get-contexts`で表示できる。
+
+```
+$ kubectl config get-contexts
+CURRENT   NAME        CLUSTER     AUTHINFO    NAMESPACE
+*         kind-kind   kind-kind   kind-kind
+          minikube    minikube    minikube    default
+```
+
+もしくは`kubectx`をインストールしている場合は`kubectx`でもよい。
+
+```
+$ kubectx
+kind-kind
+minikube
+```
+
+`kubectx`に引数を指定することでコンテキストをきりかえることができる。
+
+```
+$ kubectx minikube
+Switched to context "minikube".
+
+$ kubectl config get-contexts
+CURRENT   NAME        CLUSTER     AUTHINFO    NAMESPACE
+          kind-kind   kind-kind   kind-kind
+*         minikube    minikube    minikube    default
+```
