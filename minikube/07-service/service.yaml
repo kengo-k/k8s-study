@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: nginx
+  name: service-sample-pod
   labels:
     app: web
     env: dev
@@ -14,7 +14,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: web-svc
+  name: service-sample-service
 spec:
   type: NodePort
   selector:
