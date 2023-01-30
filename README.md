@@ -94,3 +94,20 @@ globalに使えるように設定する
 ```
 $ asdf global kubectl 1.26.0
 ```
+
+```
+$ asdf plugin add kubectx
+$ asdf install kubectx latest
+$ asdf global kubectx latest
+```
+
+```
+$ kubectx
+kind-kind
+minikube
+```
+
+```
+$ kubectx kind-kind
+Switched to context "kind-kind".
+```
