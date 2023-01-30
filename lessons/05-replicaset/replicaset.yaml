@@ -3,7 +3,7 @@ kind: ReplicaSet
 metadata:
   name: replicaset-sample
 spec:
-  replicas: 2
+  replicas: 10
   selector:
     matchLabels:
       app: web
