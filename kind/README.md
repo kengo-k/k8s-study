@@ -50,6 +50,7 @@ control-plane(マスターノード)が作成されていることが確認で�
 $ kubectl config get-contexts
 CURRENT   NAME        CLUSTER     AUTHINFO    NAMESPACE
 *         kind-kind   kind-kind   kind-kind
+          minikube    minikube    minikube    default
 ```
 
 kubectlのcontextも切り替わっていることが確認できた。
