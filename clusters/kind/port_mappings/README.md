@@ -14,11 +14,11 @@ nodes:
       hostPort: 80
 ```
 
-`extraPortMappings`によりホストの80番ポートからノードの30080番へ転送をする設定を追加している。ファイル作成後、下記コマンドを実行してクラスタを再作成する
+`extraPortMappings`によりホストの80番ポートからノードの30080番へ転送をする設定を追加している。ファイル作成後、下記コマンドを実行してクラスタを再作成する。
 
 ```
 $ kind delete clusters kind
-$ kind create cluster --config=./multi_nodes_cluster.yaml
+$ kind create cluster --config=./port_mappings_cluster.yaml
 ```
 
 ## マニフェストファイルを作成する
