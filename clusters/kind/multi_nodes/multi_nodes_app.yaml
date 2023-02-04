@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: kind-multi-node-deployment
   labels:
-    app: web-nginx
-  name: web-nginx
+    app: web
 spec:
   replicas: 5
   selector:
     matchLabels:
-      app: web-nginx
+      app: web
   template:
     metadata:
       labels:
-        app: web-nginx
+        app: web
     spec:
       containers:
       - image: nginx
@@ -24,11 +24,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: web-nginx
+  name: kind-multi-node-service
 spec:
   selector:
-    app: web-nginx
-  type: NodePort
+    app: web
   ports:
     - port: 80
-      nodePort: 30080
