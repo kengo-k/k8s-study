@@ -156,6 +156,8 @@ pod/hello-world created
 
 リソースの一覧を表示するために使用する。例えば上記のhello-worldを実行した状態で下記のコマンドを実行する。
 
+### kubectl get
+
 ```
 $ kubectl get all
 NAME              READY   STATUS    RESTARTS   AGE
@@ -200,3 +202,47 @@ node/kind-control-plane   Ready    control-plane   14m   v1.25.3
 ```
 
 上記の例ではPodとノードの一覧を表示している。
+
+### kubectl get -o wide
+
+`-o wide`オプションを指定することでより詳細な情報を取得することができる。
+
+```
+$ kubectl get po -o wide
+NAME          READY   STATUS             RESTARTS        AGE   IP           NODE                 NOMINATED NODE   READINESS GATES
+hello-world   0/1     CrashLoopBackOff   8 (4m24s ago)   20m   10.244.0.2   kind-control-plane   <none>           <none>
+```
+
+### kubectl get -o yaml
+
+`kubectl get`に`-o yaml`オプションを指定することでさらに詳細な情報をyaml形式で取得することができる。出力したyamlをマニフェストファイルのテンプレートとして利用する際などに使う。例としてSecretをコマンドで作成してからyamlとして出力する。
+
+```
+$ kubectl create secret generic sec1 \
+  --from-literal=key1="value1"
+secret/sec1 created
+```
+
+下記コマンドでyamlとして出力する。
+
+```
+$ kubectl get secret -o yaml
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    key1: dmFsdWUx
+  kind: Secret
+  metadata:
+    creationTimestamp: "2023-02-05T06:03:57Z"
+    name: sec1
+    namespace: default
+    resourceVersion: "2407"
+    uid: c6180b68-d072-412f-afdf-d742c890afaf
+  type: Opaque
+kind: List
+metadata:
+  resourceVersion: ""
+```
+
+出力したyamlを不要な箇所を削る等の編集を加えて他のマニフェストに組み込むなどの用途に役立つ。
