@@ -69,6 +69,33 @@ Downloading kubectl from https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubec
 $ asdf global kubectl 1.26.0
 ```
 
+`kubectl`とクラスタのバージョンの確認は下記のコマンドを実行する。
+
+```
+$ kubectl version --output=yaml
+clientVersion:
+  buildDate: "2022-12-08T19:58:30Z"
+  compiler: gc
+  gitCommit: b46a3f887ca979b1a5d14fd39cb1af43e7e5d12d
+  gitTreeState: clean
+  gitVersion: v1.26.0
+  goVersion: go1.19.4
+  major: "1"
+  minor: "26"
+  platform: linux/amd64
+kustomizeVersion: v4.5.7
+serverVersion:
+  buildDate: "2022-10-25T19:35:11Z"
+  compiler: gc
+  gitCommit: 434bfd82814af038ad94d62ebe59b133fcb50506
+  gitTreeState: clean
+  gitVersion: v1.25.3
+  goVersion: go1.19.2
+  major: "1"
+  minor: "25"
+  platform: linux/amd64
+```
+
 続いて`kubectx`をインストールしておく。`kubectx`を使用することでコンテキストを簡単に切り替えることができる。kindとminikubeを併用する(したい場面があるかわからないが)場合などに便利。バージョンは気にせずlatestで入れておく。
 
 ```
