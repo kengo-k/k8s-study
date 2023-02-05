@@ -2,7 +2,7 @@
 
 ## Dockerのインストール
 
-k8s学習用の環境をLinuxに構築する。ディストリビューションはUbuntu 22.04を使用。下記のコマンドを実行してDockerをインストールする。
+k8s学習用の環境をUbuntu 22.04上に構築する。学習環境としては`kind`もしくは`minikube`を使用するがともにDockerが必要になるため、まずは下記のコマンドを実行してDockerをインストールする。
 
 ```
 $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
