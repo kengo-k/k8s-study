@@ -1,15 +1,43 @@
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: persistent-sample-volume
+spec:
+  storageClassName: slow
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/data/storage"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: persistent-sample-volume-claim
+spec:
+  storageClassName: slow
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
 kind: Pod
 metadata:
-  name: nginx
+  name: persistent-sample-pod
 spec:
-  containers:
-  - image: nginx
-    name: nginx
-    volumeMounts:
-    - mountPath: /test
-      name: test-volume
   volumes:
-  - name: test-volume
-    hostPath:
-      path: /data
+    - name: persistent-sample-pod-volume
+      persistentVolumeClaim:
+        claimName: persistent-sample-volume-claim
+  containers:
+    - name: nginx
+      image: nginx
+      volumeMounts:
+        - mountPath: "/usr/share/nginx/html"
+          name: persistent-sample-pod-volume
