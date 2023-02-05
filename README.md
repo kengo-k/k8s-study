@@ -91,3 +91,11 @@ minikube
 $ kubectx kind-kind
 Switched to context "kind-kind".
 ```
+
+# kubectlの基本的な使い方
+
+- kubectl apply
+- kubectl get
+- kubectl describe
+- kubectl logs
+- kubectl delete
