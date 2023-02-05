@@ -215,7 +215,7 @@ hello-world   0/1     CrashLoopBackOff   8 (4m24s ago)   20m   10.244.0.2   kind
 
 ### kubectl get -o yaml
 
-`kubectl get`に`-o yaml`オプションを指定することでさらに詳細な情報をyaml形式で取得することができる。出力したyamlをマニフェストファイルのテンプレートとして利用する際などに使う。例としてSecretをコマンドで作成してからyamlとして出力する。
+`-o yaml`オプションを指定することでさらに詳細な情報をyaml形式で取得することができる。出力したyamlをマニフェストファイルのテンプレートとして利用する際などに使う。例としてSecretをコマンドで作成してからyamlとして出力する。
 
 ```
 $ kubectl create secret generic sec1 \
@@ -246,3 +246,40 @@ metadata:
 ```
 
 出力したyamlを不要な箇所を削る等の編集を加えて他のマニフェストに組み込むなどの用途に役立つ。
+
+## exec
+
+主にPodの中に入ってシェルで作業する際に使う。例えば下記のマニフェストファイルでnginxのPodを立ち上げる。
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+  namespace: default
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+```
+
+Podの中に入ってコマンドを実行してみる。
+
+```
+$ kubectl apply -f pods.yaml
+pod/nginx created
+
+$ kubectl exec -it nginx -- sh
+/ # curl
+sh: curl: not found
+/ # apk add curl
+...省略...
+/ # curl localhost
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to nginx!</title>
+...省略...
+```
+
+nginxの中に入って直接コマンドを実行して動作確認してみる例。ここではcurlをインストールしてnginxのページを表示できるか確認した。
