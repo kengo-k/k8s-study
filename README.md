@@ -45,41 +45,20 @@ Hello from Docker!
 
 # kubectlのインストール
 
-下記のコマンドを実行しkubectlをインストールする。
-
-```
-curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
-```
-
-インストール後、ファイルに実行権限を付与しPATHの通ったディレクトリに配置すること
-
-```
-$ kubectl get service -n=kube-system
-NAME       TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
-kube-dns   ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   36h
-```
-
-```
-$ kubectl get po -n=kube-system
-NAME                               READY   STATUS    RESTARTS        AGE
-coredns-565d847f94-7m7p2           1/1     Running   1 (9m31s ago)   36h
-etcd-minikube                      1/1     Running   1 (9m31s ago)   36h
-kube-apiserver-minikube            1/1     Running   1 (9m31s ago)   36h
-kube-controller-manager-minikube   1/1     Running   1 (24m ago)     36h
-kube-proxy-77bcw                   1/1     Running   1 (24m ago)     36h
-kube-scheduler-minikube            1/1     Running   1 (9m31s ago)   36h
-storage-provisioner                1/1     Running   3 (8m38s ago)   36h
-```
+asdfを使用して`kubectl`をインストールする。※asdfのインストール、使用法について割愛
 
 ```
 $ asdf plugin add kubectl
-```
-
-```
 $ asdf list all kubectl
 ...中略...
 1.26.0
 ...中略...
+```
+
+`kubectl`のどのバージョンを使用するかを確認しておくこと。公式ドキュメントに下記の記載がある。
+
+```
+kubectlのバージョンは、クラスターのマイナーバージョンとの差分が1つ以内でなければなりません。たとえば、クライアントがv1.2であれば、v1.1、v1.2、v1.3のマスターで動作するはずです。
 ```
 
 ひとまず1.26.0をインストールすることにする。
@@ -87,13 +66,10 @@ $ asdf list all kubectl
 ```
 $ asdf install kubectl 1.26.0
 Downloading kubectl from https://dl.k8s.io/release/v1.26.0/bin/linux/amd64/kubectl
-```
-
-globalに使えるように設定する
-
-```
 $ asdf global kubectl 1.26.0
 ```
+
+続いて`kubectx`をインストールしておく。`kubectx`を使用することでコンテキストを簡単に切り替えることができる。kindとminikubeを併用する(したい場面があるかわからないが)場合などに便利。バージョンは気にせずlatestで入れておく。
 
 ```
 $ asdf plugin add kubectx
@@ -101,44 +77,17 @@ $ asdf install kubectx latest
 $ asdf global kubectx latest
 ```
 
+`kubectx`コマンドを実行するとコンテキストの一覧が表示される
+
 ```
 $ kubectx
 kind-kind
 minikube
 ```
+
+切り替えたいクラスターを引数として渡せばコンテキストを切り替えることができる。
 
 ```
 $ kubectx kind-kind
 Switched to context "kind-kind".
-```
-
-# コンテキストの切り替えについて
-
-複数のクラスターが存在する場合(例えばminikubeも併用している場合)は使用するコンテキストを切り替えることで操作するクラスターを変更できる。コンテキストの一覧は`kubectl config get-contexts`で表示できる。
-
-```
-$ kubectl config get-contexts
-CURRENT   NAME        CLUSTER     AUTHINFO    NAMESPACE
-*         kind-kind   kind-kind   kind-kind
-          minikube    minikube    minikube    default
-```
-
-もしくは`kubectx`をインストールしている場合は`kubectx`でもよい。
-
-```
-$ kubectx
-kind-kind
-minikube
-```
-
-`kubectx`に引数を指定することでコンテキストをきりかえることができる。
-
-```
-$ kubectx minikube
-Switched to context "minikube".
-
-$ kubectl config get-contexts
-CURRENT   NAME        CLUSTER     AUTHINFO    NAMESPACE
-          kind-kind   kind-kind   kind-kind
-*         minikube    minikube    minikube    default
 ```
