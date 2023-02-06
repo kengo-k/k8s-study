@@ -128,6 +128,7 @@ Switched to context "kind-kind".
 - kubectl exec
 - kubectl describe
 - kubectl logs
+- kubectl run
 - kubectl delete
 
 ## apply
@@ -283,3 +284,39 @@ sh: curl: not found
 ```
 
 nginxの中に入って直接コマンドを実行して動作確認してみる例。ここではcurlをインストールしてnginxのページを表示できるか確認した。
+
+## describe
+
+エラーなどの調査時にリソースの状態を確認する際に使用する。
+
+```
+$ kubectl describe po hello-world
+Name:             hello-world
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             kind-control-plane/172.18.0.2
+...以下省略...
+```
+
+## logs
+
+Podのコンソール出力を確認する際に使用する。
+
+```
+$ kubectl logs hello-world
+
+Hello from Docker!
+```
+
+## run
+
+マニフェストファイルを記述せずに使い捨てのPodを一回だけ起動する際に使う。
+
+```
+$ kubectl run -it --rm hello-world --image hello-world --restart=Never
+
+Hello from Docker!
+...省略...
+pod "hello-world" deleted
+```
