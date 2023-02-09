@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: Pod
-metadata:
-  name: hello-sample-pod
-  namespace: default
-spec:
-  containers:
-    - name: hello-world
-      image: hello-world
