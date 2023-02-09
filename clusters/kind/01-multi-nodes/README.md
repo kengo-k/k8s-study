@@ -1,4 +1,4 @@
-kindで簡単にマルチノードクラスタを作成できるので試してみる。まずは下記の内容でクラスタの定義ファイルを作成する。
+kindを使うと簡単にマルチノードクラスタが作成できるらしいので試してみる。まずは下記の内容でクラスタの定義ファイルを作成する。
 
 ```yaml
 kind: Cluster
@@ -13,7 +13,7 @@ nodes:
 
 ```
 $ kind delete clusters kind
-$ kind create cluster --config=./multi_nodes_cluster.yaml
+$ kind create cluster --config=./cluster.yaml
 ```
 
 正常に処理が終了すれば複数のノード(Dockerコンテナ)が作成されているはずなので確認する。
@@ -77,7 +77,7 @@ spec:
 `replicas`の値が5となっているため5つのPodがワーカノードに振り分けられた起動するはずである。実際にapplyして確認してみる。
 
 ```
-$ kubectl apply -f multi_nodes_app.yaml
+$ kubectl apply -f app.yaml
 deployment.apps/kind-multi-node-deployment unchanged
 service/kind-multi-node-service created
 ```
